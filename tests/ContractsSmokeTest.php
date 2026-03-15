@@ -11,6 +11,7 @@ use EzPhp\Contracts\ExceptionHandlerInterface;
 use EzPhp\Contracts\EzPhpException;
 use EzPhp\Contracts\MiddlewareInterface;
 use EzPhp\Contracts\ServiceProvider;
+use EzPhp\Contracts\TranslatorInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -29,6 +30,7 @@ class ContractsSmokeTest extends TestCase
         $this->assertTrue(interface_exists(DatabaseInterface::class));
         $this->assertTrue(interface_exists(ExceptionHandlerInterface::class));
         $this->assertTrue(interface_exists(MiddlewareInterface::class));
+        $this->assertTrue(interface_exists(TranslatorInterface::class));
     }
 
     #[Test]
