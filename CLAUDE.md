@@ -159,7 +159,9 @@ src/
 ├── DatabaseInterface.php         — query() + transaction() + getPdo(); implemented by Database
 ├── ExceptionHandlerInterface.php — render(Throwable, Request): Response; implemented by DefaultExceptionHandler
 ├── EzPhpException.php            — Base exception extending RuntimeException
-└── MiddlewareInterface.php       — handle(Request, callable): Response; implemented by all middleware
+├── JobInterface.php              — handle() + fail() + getters/incrementAttempts(); implemented by ez-php/queue Job
+├── MiddlewareInterface.php       — handle(Request, callable): Response; implemented by all middleware
+└── QueueInterface.php            — push() + pop() + size() + failed(); implemented by queue drivers
 
 tests/
 ├── TestCase.php                  — Base PHPUnit test case
@@ -185,6 +187,14 @@ Covers the three operations the ORM needs: `query()` for SELECT, `transaction()`
 ### ExceptionHandlerInterface
 
 Depends on `ez-php/http` for `Request` and `Response` — acceptable since `ez-php/http` is already framework-free.
+
+### JobInterface
+
+Defines the contract for all queue jobs. Key methods: `handle()` (do the work), `fail(Throwable)` (called on permanent failure), and the attempt/retry accessors. Implemented by `ez-php/queue`'s abstract `Job` base class.
+
+### QueueInterface
+
+Defines the contract for queue drivers. Four methods: `push()` (enqueue), `pop()` (dequeue next available job or null), `size()` (count ready jobs), `failed()` (record permanently failed job to driver-specific storage). Implemented by `DatabaseDriver` and `RedisDriver` in `ez-php/queue`.
 
 ---
 
@@ -214,5 +224,6 @@ Depends on `ez-php/http` for `Request` and `Response` — acceptable since `ez-p
 | `Application`, `Container`, `Router` | `ez-php/framework` |
 | `Request`, `Response` | `ez-php/http` |
 | `CommandInterface` | `ez-php/console` |
-| Module-specific interfaces | Individual module packages |
+| Module-specific interfaces that no other module needs | Individual module packages |
+| `Job` abstract class, `Worker`, drivers | `ez-php/queue` |
 
