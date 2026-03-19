@@ -21,9 +21,9 @@ interface ContainerInterface
      * @param string                   $abstract Class or interface name.
      * @param string|callable|null     $factory  Concrete class, factory callable, or null for self-binding.
      *
-     * @return void
+     * @return static
      */
-    public function bind(string $abstract, string|callable|null $factory = null): void;
+    public function bind(string $abstract, string|callable|null $factory = null): static;
 
     /**
      * Resolve a class from the container.

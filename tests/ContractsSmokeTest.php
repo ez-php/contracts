@@ -48,11 +48,35 @@ class ContractsSmokeTest extends TestCase
     }
 
     #[Test]
+    public function containerInterfaceBindReturnsSelf(): void
+    {
+        $container = new class () implements ContainerInterface {
+            public function bind(string $abstract, string|callable|null $factory = null): static
+            {
+                return $this;
+            }
+
+            public function make(string $abstract): mixed
+            {
+                throw new \LogicException('not implemented in test stub');
+            }
+
+            public function instance(string $abstract, object $instance): void
+            {
+            }
+        };
+
+        $result = $container->bind('Foo');
+        $this->assertSame($container, $result);
+    }
+
+    #[Test]
     public function serviceProviderCanBeExtended(): void
     {
         $container = new class () implements ContainerInterface {
-            public function bind(string $abstract, string|callable|null $factory = null): void
+            public function bind(string $abstract, string|callable|null $factory = null): static
             {
+                return $this;
             }
 
             public function make(string $abstract): mixed
