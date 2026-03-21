@@ -40,4 +40,30 @@ abstract class ServiceProvider
     {
         //
     }
+
+    /**
+     * Indicate whether this provider is deferred (lazy).
+     *
+     * When true, the provider's register() and boot() are not called during
+     * bootstrap. Instead, they are called the first time any of the bindings
+     * declared in provides() is requested from the container.
+     *
+     * @return bool
+     */
+    public function deferred(): bool
+    {
+        return false;
+    }
+
+    /**
+     * Return the list of bindings (class-strings) that this deferred provider
+     * registers. The Application uses this list to know when to activate the
+     * provider. This method is only meaningful when deferred() returns true.
+     *
+     * @return list<string>
+     */
+    public function provides(): array
+    {
+        return [];
+    }
 }
