@@ -1,6 +1,6 @@
 {
   "name": "ez-php/contracts",
-  "version": "0.8.6",
+  "version": "0.9.0",
   "description": "Shared interfaces and abstract base classes for the ez-php framework — zero framework coupling for standalone modules",
   "type": "library",
   "license": "MIT",
