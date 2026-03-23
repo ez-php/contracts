@@ -2,6 +2,12 @@
 
 All notable changes to `ez-php/contracts` are documented here.
 
+## [v0.8.6] — 2026-03-23
+
+### Documentation
+- Update CHANGELOG for v0.8.5 [skip ci] (1a233be)
+
+
 ## [v0.8.5] — 2026-03-23
 
 ### Documentation
