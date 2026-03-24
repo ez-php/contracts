@@ -164,7 +164,7 @@ Shared interfaces and abstract base classes for the ez-php framework. Zero produ
 
 ```
 src/
-├── ContainerInterface.php        — bind() + make(); implemented by Application
+├── ContainerInterface.php        — bind() + make() + instance(); implemented by Application
 ├── ServiceProvider.php           — Abstract base with ContainerInterface $app; modules extend this
 ├── ConfigInterface.php           — get(key, default): mixed; implemented by Config
 ├── DatabaseInterface.php         — query() + transaction() + getPdo(); implemented by Database
@@ -172,7 +172,9 @@ src/
 ├── EzPhpException.php            — Base exception extending RuntimeException
 ├── JobInterface.php              — handle() + fail() + getters/incrementAttempts(); implemented by ez-php/queue Job
 ├── MiddlewareInterface.php       — handle(Request, callable): Response; implemented by all middleware
-└── QueueInterface.php            — push() + pop() + size() + failed(); implemented by queue drivers
+├── QueueInterface.php            — push() + pop() + size() + failed(); implemented by queue drivers
+├── RepositoryInterface.php       — find() + save() + delete(); generic T of object; implemented by ez-php/orm AbstractRepository
+└── TranslatorInterface.php       — get(key, replacements): string; implemented by ez-php/i18n Translator
 
 tests/
 ├── TestCase.php                  — Base PHPUnit test case
@@ -185,7 +187,7 @@ tests/
 
 ### ContainerInterface
 
-Only two methods: `bind()` and `make()`. Intentionally minimal — PSR-11 only has `get()`/`has()` which is not enough for module ServiceProviders that need to register bindings.
+Three methods: `bind()`, `make()`, `instance()`. Intentionally minimal — PSR-11 only has `get()`/`has()` which is not enough for module ServiceProviders that need to register bindings. `instance()` allows decorators in `boot()` to replace an already-resolved service in the singleton cache.
 
 ### ServiceProvider
 
@@ -207,12 +209,20 @@ Defines the contract for all queue jobs. Key methods: `handle()` (do the work), 
 
 Defines the contract for queue drivers. Four methods: `push()` (enqueue), `pop()` (dequeue next available job or null), `size()` (count ready jobs), `failed()` (record permanently failed job to driver-specific storage). Implemented by `DatabaseDriver` and `RedisDriver` in `ez-php/queue`.
 
+### RepositoryInterface
+
+Generic template `T of object`. Three methods: `find(int|string $id): ?T`, `save(T $entity): void`, `delete(T $entity): void`. Implemented by `AbstractRepository` in `ez-php/orm`. Allows non-ORM modules to type-hint against a repository without importing `ez-php/orm`.
+
+### TranslatorInterface
+
+Single method: `get(string $key, array $replacements = []): string`. Resolves a dot-notation key to a localised string with optional placeholder substitution. Implemented by `ez-php/i18n`'s `Translator`. Used optionally by `ez-php/validation` to localise error messages.
+
 ---
 
 ## Design Decisions and Constraints
 
 - **No logic** — Only interfaces and one thin base class (`ServiceProvider`). No implementation anywhere.
-- **`ContainerInterface::bind()` returns `void`** — No fluent interface in the contract. The Application's builder pattern (returning `$this`) is application-level, not a contract requirement.
+- **`ContainerInterface::bind()` returns `static`** — Allows fluent chaining in service providers. `instance()` returns `void` since chaining after injecting a concrete instance is uncommon.
 - **`EzPhpException` is concrete** — Modules instantiate it directly or extend it. Making it abstract would break callers that throw it without subclassing.
 - **`ez-php/http` as a dependency** — `ExceptionHandlerInterface` and `MiddlewareInterface` both reference `Request` and `Response`. Since `ez-php/http` is already zero-dependency, this is an acceptable dependency.
 - **No PSR-11** — PSR-11 only provides `get()`/`has()`. Module ServiceProviders also need `bind()`. Extending PSR-11 would add a Composer dependency for marginal gain.
@@ -222,8 +232,9 @@ Defines the contract for queue drivers. Four methods: `push()` (enqueue), `pop()
 ## Testing Approach
 
 - No infrastructure required.
-- Tests verify contracts exist as interfaces/abstract classes and that `ServiceProvider` can be extended.
+- Tests verify all 9 contracts exist as interfaces/abstract classes and that `ServiceProvider` can be extended.
 - `EzPhpException` tested for instantiation and message passing.
+- `ContainerInterface::bind()` tested to confirm it returns `static` for fluent chaining.
 
 ---
 

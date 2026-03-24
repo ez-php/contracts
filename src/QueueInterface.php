@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace EzPhp\Contracts;
 
+use Throwable;
+
 /**
  * Interface QueueInterface
  *
@@ -57,5 +59,5 @@ interface QueueInterface
      *
      * @return void
      */
-    public function failed(JobInterface $job, \Throwable $exception): void;
+    public function failed(JobInterface $job, Throwable $exception): void;
 }

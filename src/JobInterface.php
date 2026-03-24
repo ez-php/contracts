@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace EzPhp\Contracts;
 
+use Throwable;
+
 /**
  * Interface JobInterface
  *
@@ -31,7 +33,7 @@ interface JobInterface
      *
      * @return void
      */
-    public function fail(\Throwable $exception): void;
+    public function fail(Throwable $exception): void;
 
     /**
      * Return the name of the queue this job should be pushed onto.
