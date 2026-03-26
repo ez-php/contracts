@@ -28,6 +28,16 @@ interface DatabaseInterface
     public function query(string $sql, array $bindings = []): array;
 
     /**
+     * Execute a non-SELECT statement (INSERT, UPDATE, DELETE) and return the number of affected rows.
+     *
+     * @param string                   $sql
+     * @param array<int|string, mixed> $bindings Positional or named bindings.
+     *
+     * @return int Number of rows affected.
+     */
+    public function execute(string $sql, array $bindings = []): int;
+
+    /**
      * Execute a callable inside a database transaction.
      * Rolls back automatically on exception; commits otherwise.
      *
