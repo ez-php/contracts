@@ -6,6 +6,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [v1.2.0] — 2026-03-28
+
+### Changed
+- `ExceptionHandlerInterface::render()` — second parameter type changed from `Request` to `RequestInterface`; implementations must be updated accordingly
+- `MiddlewareInterface::handle()` — first parameter type changed from `Request` to `RequestInterface`; implementations must be updated accordingly
+- Updated `ez-php/http` dependency constraint to `^1.2`
+
+---
+
 ## [v1.0.1] — 2026-03-25
 
 ### Changed
