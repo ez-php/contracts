@@ -13,6 +13,7 @@ use EzPhp\Contracts\JobInterface;
 use EzPhp\Contracts\MiddlewareInterface;
 use EzPhp\Contracts\QueueInterface;
 use EzPhp\Contracts\RepositoryInterface;
+use EzPhp\Contracts\Schema\SchemaInterface;
 use EzPhp\Contracts\ServiceProvider;
 use EzPhp\Contracts\TranslatorInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -36,6 +37,7 @@ class ContractsSmokeTest extends TestCase
         $this->assertTrue(interface_exists(MiddlewareInterface::class));
         $this->assertTrue(interface_exists(QueueInterface::class));
         $this->assertTrue(interface_exists(RepositoryInterface::class));
+        $this->assertTrue(interface_exists(SchemaInterface::class));
         $this->assertTrue(interface_exists(TranslatorInterface::class));
     }
 
