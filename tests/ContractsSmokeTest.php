@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests;
 
+use EzPhp\Contracts\CommandRegistryInterface;
 use EzPhp\Contracts\ConfigInterface;
 use EzPhp\Contracts\ContainerInterface;
 use EzPhp\Contracts\DatabaseInterface;
@@ -29,6 +30,7 @@ class ContractsSmokeTest extends TestCase
     #[Test]
     public function contractInterfacesExist(): void
     {
+        $this->assertTrue(interface_exists(CommandRegistryInterface::class));
         $this->assertTrue(interface_exists(ContainerInterface::class));
         $this->assertTrue(interface_exists(ConfigInterface::class));
         $this->assertTrue(interface_exists(DatabaseInterface::class));
