@@ -174,7 +174,9 @@ src/
 ├── MiddlewareInterface.php       — handle(Request, callable): Response; implemented by all middleware
 ├── QueueInterface.php            — push() + pop() + size() + failed(); implemented by queue drivers
 ├── RepositoryInterface.php       — find() + save() + delete(); generic T of object; implemented by ez-php/orm AbstractRepository
-└── TranslatorInterface.php       — get(key, replacements): string; implemented by ez-php/i18n Translator
+├── TranslatorInterface.php       — get(key, replacements): string; implemented by ez-php/i18n Translator
+└── Schema/
+    └── SchemaInterface.php       — create/table/drop/dropIfExists/hasTable/hasColumn/rename; implemented by ez-php/orm Schema
 
 tests/
 ├── TestCase.php                  — Base PHPUnit test case
