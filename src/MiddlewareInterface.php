@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace EzPhp\Contracts;
 
 use EzPhp\Http\RequestInterface;
-use EzPhp\Http\Response;
+use EzPhp\Http\ResponseInterface;
 
 /**
  * Interface MiddlewareInterface
@@ -23,7 +23,7 @@ interface MiddlewareInterface
      * @param RequestInterface $request
      * @param callable         $next
      *
-     * @return Response
+     * @return ResponseInterface
      */
-    public function handle(RequestInterface $request, callable $next): Response;
+    public function handle(RequestInterface $request, callable $next): ResponseInterface;
 }

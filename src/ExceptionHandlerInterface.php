@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace EzPhp\Contracts;
 
 use EzPhp\Http\RequestInterface;
-use EzPhp\Http\Response;
+use EzPhp\Http\ResponseInterface;
 use Throwable;
 
 /**
@@ -23,7 +23,7 @@ interface ExceptionHandlerInterface
      * @param Throwable        $e
      * @param RequestInterface $request
      *
-     * @return Response
+     * @return ResponseInterface
      */
-    public function render(Throwable $e, RequestInterface $request): Response;
+    public function render(Throwable $e, RequestInterface $request): ResponseInterface;
 }
