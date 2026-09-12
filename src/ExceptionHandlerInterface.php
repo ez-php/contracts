@@ -18,6 +18,20 @@ use Throwable;
 interface ExceptionHandlerInterface
 {
     /**
+     * Record the exception (log, metrics, …) without producing a response.
+     *
+     * Called by the kernel before render(), and on its own when a streamed
+     * response fails after its headers were already sent. Implementations must
+     * not throw.
+     *
+     * @param Throwable        $e
+     * @param RequestInterface $request
+     *
+     * @return void
+     */
+    public function report(Throwable $e, RequestInterface $request): void;
+
+    /**
      * Convert the given exception to an HTTP Response.
      *
      * @param Throwable        $e

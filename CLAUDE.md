@@ -227,10 +227,10 @@ src/
 ├── ServiceProvider.php           — Abstract base with ContainerInterface $app; modules extend this
 ├── ConfigInterface.php           — get(key, default): mixed; implemented by Config
 ├── DatabaseInterface.php         — query() + transaction() + getPdo(); implemented by Database
-├── ExceptionHandlerInterface.php — render(Throwable, Request): Response; implemented by DefaultExceptionHandler
+├── ExceptionHandlerInterface.php — report(Throwable, RequestInterface): void + render(…): ResponseInterface; implemented by DefaultExceptionHandler
 ├── EzPhpException.php            — Base exception extending RuntimeException
 ├── JobInterface.php              — handle() + fail() + getters/incrementAttempts(); implemented by ez-php/queue Job
-├── MiddlewareInterface.php       — handle(Request, callable): Response; implemented by all middleware
+├── MiddlewareInterface.php       — handle(RequestInterface, callable): ResponseInterface; implemented by all middleware
 ├── QueueInterface.php            — push() + pop() + size() + failed(); implemented by queue drivers
 ├── RepositoryInterface.php       — find() + save() + delete(); generic T of object; implemented by ez-php/orm AbstractRepository
 ├── TranslatorInterface.php       — get(key, replacements): string; implemented by ez-php/i18n Translator
@@ -260,7 +260,9 @@ Covers the three operations the ORM needs: `query()` for SELECT, `transaction()`
 
 ### ExceptionHandlerInterface
 
-Depends on `ez-php/http` for `Request` and `Response` — acceptable since `ez-php/http` is already framework-free.
+Two methods since 2.0. `report(Throwable, RequestInterface): void` records the exception without producing a response; `render(Throwable, RequestInterface): ResponseInterface` turns it into one. The kernel calls `report()` then `render()` for exceptions raised while handling a request, and only `report()` when a streamed response fails after its headers were sent. `report()` must not throw.
+
+Depends on `ez-php/http` for `RequestInterface` and `ResponseInterface` — acceptable since `ez-php/http` is already framework-free.
 
 ### JobInterface
 
@@ -285,7 +287,7 @@ Single method: `get(string $key, array $replacements = []): string`. Resolves a 
 - **No logic** — Only interfaces and one thin base class (`ServiceProvider`). No implementation anywhere.
 - **`ContainerInterface::bind()` returns `static`** — Allows fluent chaining in service providers. `instance()` returns `void` since chaining after injecting a concrete instance is uncommon.
 - **`EzPhpException` is concrete** — Modules instantiate it directly or extend it. Making it abstract would break callers that throw it without subclassing.
-- **`ez-php/http` as a dependency** — `ExceptionHandlerInterface` and `MiddlewareInterface` both reference `Request` and `Response`. Since `ez-php/http` is already zero-dependency, this is an acceptable dependency.
+- **`ez-php/http` as a dependency** — `ExceptionHandlerInterface` and `MiddlewareInterface` both reference `RequestInterface` and `ResponseInterface`. Since `ez-php/http` is already zero-dependency, this is an acceptable dependency.
 - **No PSR-11** — PSR-11 only provides `get()`/`has()`. Module ServiceProviders also need `bind()`. Extending PSR-11 would add a Composer dependency for marginal gain.
 
 ---
