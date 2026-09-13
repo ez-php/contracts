@@ -240,7 +240,7 @@ Shared interfaces and abstract base classes for the ez-php framework. Zero produ
 
 ```
 src/
-├── ContainerInterface.php        — bind() + make() + instance(); implemented by Application
+├── ContainerInterface.php        — bind() + make() + has() + instance(); implemented by Application
 ├── ServiceProvider.php           — Abstract base with ContainerInterface $app; modules extend this
 ├── ConfigInterface.php           — get(key, default): mixed; implemented by Config
 ├── DatabaseInterface.php         — query() + transaction() + getPdo(); implemented by Database
@@ -265,7 +265,7 @@ tests/
 
 ### ContainerInterface
 
-Three methods: `bind()`, `make()`, `instance()`. Intentionally minimal — PSR-11 only has `get()`/`has()` which is not enough for module ServiceProviders that need to register bindings. `instance()` allows decorators in `boot()` to replace an already-resolved service in the singleton cache.
+Four methods: `bind()`, `make()`, `has()`, `instance()`. Intentionally minimal — PSR-11 only has `get()`/`has()` which is not enough for module ServiceProviders that need to register bindings. `has()` reports only on explicit bindings and resolved/cached instances (never on autowireable concretes), letting optional-dependency service providers check `$app->has(Foo::class)` instead of a broad `try { make() } catch (\Throwable)` probe. `instance()` allows decorators in `boot()` to replace an already-resolved service in the singleton cache.
 
 ### ServiceProvider
 
@@ -305,7 +305,7 @@ Single method: `get(string $key, array $replacements = []): string`. Resolves a 
 - **`ContainerInterface::bind()` returns `static`** — Allows fluent chaining in service providers. `instance()` returns `void` since chaining after injecting a concrete instance is uncommon.
 - **`EzPhpException` is concrete** — Modules instantiate it directly or extend it. Making it abstract would break callers that throw it without subclassing.
 - **`ez-php/http` as a dependency** — `ExceptionHandlerInterface` and `MiddlewareInterface` both reference `RequestInterface` and `ResponseInterface`. Since `ez-php/http` is already zero-dependency, this is an acceptable dependency.
-- **No PSR-11** — PSR-11 only provides `get()`/`has()`. Module ServiceProviders also need `bind()`. Extending PSR-11 would add a Composer dependency for marginal gain.
+- **No PSR-11** — PSR-11 only provides `get()`/`has()`. Module ServiceProviders also need `bind()`, so `ContainerInterface` defines its own minimal contract (including its own `has()`) rather than extending PSR-11 and adding a Composer dependency for marginal gain.
 
 ---
 

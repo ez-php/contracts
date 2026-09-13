@@ -71,6 +71,11 @@ class ContractsSmokeTest extends TestCase
                 throw new \LogicException('not implemented in test stub');
             }
 
+            public function has(string $abstract): bool
+            {
+                return false;
+            }
+
             public function instance(string $abstract, object $instance): void
             {
             }
@@ -92,6 +97,11 @@ class ContractsSmokeTest extends TestCase
             public function make(string $abstract): mixed
             {
                 throw new \LogicException('not implemented in test stub');
+            }
+
+            public function has(string $abstract): bool
+            {
+                return false;
             }
 
             public function instance(string $abstract, object $instance): void

@@ -36,6 +36,21 @@ interface ContainerInterface
     public function make(string $abstract): mixed;
 
     /**
+     * Determine whether an explicit binding or resolved instance exists for
+     * the given abstract, without attempting to resolve it.
+     *
+     * Does not report on autowireable concrete classes — only on classes
+     * that have been explicitly bound or resolved/cached. Intended for
+     * service providers to check for optional dependencies without relying
+     * on a broad `try { make() } catch (\Throwable)` probe.
+     *
+     * @param string $abstract Class or interface name.
+     *
+     * @return bool
+     */
+    public function has(string $abstract): bool;
+
+    /**
      * Register an existing object as a shared instance in the container.
      * Bypasses bindings and directly stores the instance in the singleton cache,
      * allowing decorators to replace a previously resolved service in boot().
