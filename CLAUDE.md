@@ -264,6 +264,7 @@ src/
 ├── MiddlewareInterface.php       — handle(RequestInterface, callable): ResponseInterface; implemented by all middleware
 ├── QueueInterface.php            — push() + pop() + size() + failed(); implemented by queue drivers
 ├── RepositoryInterface.php       — find() + save() + delete(); generic T of object; implemented by ez-php/orm AbstractRepository
+├── SecondFactorResult.php        — Satisfied/NotSatisfied/NotConfigured; shared outcome for any second-factor verifier module
 ├── TranslatorInterface.php       — get(key, replacements): string; implemented by ez-php/i18n Translator
 └── Schema/
     └── SchemaInterface.php       — create/table/drop/dropIfExists/hasTable/hasColumn/rename; implemented by ez-php/orm Schema
@@ -311,11 +312,16 @@ Generic template `T of object`. Three methods: `find(int|string $id): ?T`, `save
 
 Single method: `get(string $key, array $replacements = []): string`. Resolves a dot-notation key to a localised string with optional placeholder substitution. Implemented by `ez-php/i18n`'s `Translator`. Used optionally by `ez-php/validation` to localise error messages.
 
+### SecondFactorResult
+
+Three-case enum (`Satisfied`, `NotSatisfied`, `NotConfigured`) with no methods. Any module that verifies a second authentication factor (`ez-php/two-factor`'s TOTP, `ez-php/webauthn`'s passkey assertions) can return this from its own verification entry point, so application-level login-flow code branches on one shared outcome regardless of which mechanism produced it. Neither producing module depends on the other — only on this contract.
+
 ---
 
 ## Design Decisions and Constraints
 
-- **No logic** — Only interfaces and one thin base class (`ServiceProvider`). No implementation anywhere.
+- **No logic** — Only interfaces, one thin base class (`ServiceProvider`), and one plain enum (`SecondFactorResult`, cases only, no methods). No implementation anywhere.
+- **`SecondFactorResult` is a pure marker enum** — Deliberately has no `isSatisfied()`-style helper method, unlike a typical result-object pattern, so it stays a data type rather than "implementation" and doesn't strain the "no logic" rule above. Callers compare cases directly (`$result === SecondFactorResult::Satisfied`).
 - **`ContainerInterface::bind()` returns `static`** — Allows fluent chaining in service providers. `instance()` returns `void` since chaining after injecting a concrete instance is uncommon.
 - **`EzPhpException` is concrete** — Modules instantiate it directly or extend it. Making it abstract would break callers that throw it without subclassing.
 - **`ez-php/http` as a dependency** — `ExceptionHandlerInterface` and `MiddlewareInterface` both reference `RequestInterface` and `ResponseInterface`. Since `ez-php/http` is already zero-dependency, this is an acceptable dependency.
@@ -329,6 +335,7 @@ Single method: `get(string $key, array $replacements = []): string`. Resolves a 
 - Tests verify all 9 contracts exist as interfaces/abstract classes and that `ServiceProvider` can be extended.
 - `EzPhpException` tested for instantiation and message passing.
 - `ContainerInterface::bind()` tested to confirm it returns `static` for fluent chaining.
+- `SecondFactorResultTest` verifies the three expected cases exist and are distinct.
 
 ---
 

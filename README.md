@@ -17,3 +17,4 @@ Shared interfaces and abstract base classes for the ez-php framework.
 | `QueueInterface` | Interface | Queue driver contract: `push()`, `pop()`, `size()`, `failed()` |
 | `RepositoryInterface` | Interface | Generic repository: `find()`, `save()`, `delete()` |
 | `EzPhpException` | Class | Base exception for framework and modules |
+| `SecondFactorResult` | Enum | Shared `Satisfied`/`NotSatisfied`/`NotConfigured` outcome for second-factor verifier modules (e.g. `ez-php/two-factor`, `ez-php/webauthn`) |
