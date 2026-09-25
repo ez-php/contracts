@@ -148,9 +148,11 @@ php make_module.php <name> --description="..." --services=mysql,redis
 ```
 
 `<name>` is the kebab-case package name; the namespace is derived as
-`EzPhp\<PascalCase>` unless `--namespace=` overrides it (`bignum` → `BigNum`,
-`opcache` → `OPCache`, and `dotenv` → `Env` are existing exceptions the guess
-gets wrong; `websocket-client` → `WebsocketClient`, `websocket-tls` → `WebsocketTls`,
+`EzPhp\<PascalCase>` (each `-`-separated word upper-cased) unless `--namespace=`
+overrides it. Existing exceptions the guess gets wrong: `bignum` → `BigNum`,
+`dataloader` → `DataLoader`, `dotenv` → `Env`, `graphql` → `GraphQL`, `oauth` → `OAuth`,
+`opcache` → `OPCache`, `swagger-ui` → `SwaggerUI`, `webauthn` → `WebAuthn` and
+`websocket` → `WebSocket`; `websocket-client` → `WebsocketClient`, `websocket-tls` → `WebsocketTls`,
 `webauthn-metadata` → `WebauthnMetadata` and `metrics-statsd` → `MetricsStatsd` are
 intentional lower-case-word namespaces, and `testing-application` shares `EzPhp\Testing\`
 with `testing`).
@@ -170,17 +172,21 @@ stub is written only if the submodule doesn't already ship one, so
 `composer guidelines:sync` has a `# Package:` heading to anchor part 1 against.
 
 It writes `modules/<name>/` and registers the module in the four places the monorepo
-needs it — root `composer.json` (`autoload.psr-4`), `phpstan.neon`, `phpunit.xml`
-(test suite **and** coverage source), and `packages.sh` (alphabetical position).
+needs it — root `composer.json` (`autoload.psr-4` **and** the shared
+`autoload-dev` `Tests\` directory list), `phpstan.neon`, `phpunit.xml` (test suite
+**and** coverage source), and `packages.sh` (alphabetical position) — in both
+generated and `--repo` mode.
 
 Two things stay manual on purpose:
 
 - **`CLAUDE.md` part 1** — only the `# Package:` section is generated. Run
   `composer guidelines:sync` afterwards; baking a guidelines copy into the generator
   would recreate the drift the sync script exists to prevent.
-- **The host-port table below** (`--services` only) — editing it marks every
-  `CLAUDE.md` copy as drifted at once, so the next `composer full` would fail for
-  a brand-new module. The generator prints which ports to claim instead.
+- **The host-port table below** (`--services` only) — claim the "next free" row by
+  editing the table in `CODING_GUIDELINES.md` (never in a `CLAUDE.md` copy) and run
+  `composer guidelines:sync` in the same change. Editing it drifts every `CLAUDE.md`
+  until the sync runs, which is why the generator only reminds you instead of doing
+  it. Skipping the edit leaves "next free" stale, so the next module collides.
 
 ### 4 — Docker scaffold
 
@@ -259,6 +265,7 @@ Shared interfaces and abstract base classes for the ez-php framework. Zero produ
 src/
 ├── ContainerInterface.php        — bind() + make() + has() + instance(); implemented by Application
 ├── ServiceProvider.php           — Abstract base with ContainerInterface $app; modules extend this
+├── CommandRegistryInterface.php  — registerCommand() + getCommands(); implemented by Application — lets module providers auto-register console commands
 ├── ConfigInterface.php           — get(key, default): mixed; implemented by Config
 ├── DatabaseInterface.php         — query() + transaction() + getPdo(); implemented by Database
 ├── ExceptionHandlerInterface.php — report(Throwable, RequestInterface): void + render(…): ResponseInterface; implemented by DefaultExceptionHandler
@@ -268,6 +275,7 @@ src/
 ├── QueueInterface.php            — push() + pop() + size() + failed(); implemented by queue drivers
 ├── RepositoryInterface.php       — find() + save() + delete(); generic T of object; implemented by ez-php/orm AbstractRepository
 ├── SecondFactorResult.php        — Satisfied/NotSatisfied/NotConfigured; shared outcome for any second-factor verifier module
+├── TaggedContainerInterface.php  — tag(classes, tag) + tagged(tag): iterable; implemented by the framework Container (service tagging, e.g. health probes)
 ├── TranslatorInterface.php       — get(key, replacements): string; implemented by ez-php/i18n Translator
 └── Schema/
     └── SchemaInterface.php       — create/table/drop/dropIfExists/hasTable/hasColumn/rename; implemented by ez-php/orm Schema
