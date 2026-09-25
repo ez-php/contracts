@@ -12,6 +12,7 @@ use EzPhp\Contracts\ExceptionHandlerInterface;
 use EzPhp\Contracts\EzPhpException;
 use EzPhp\Contracts\JobInterface;
 use EzPhp\Contracts\MiddlewareInterface;
+use EzPhp\Contracts\ParameterizedMiddlewareInterface;
 use EzPhp\Contracts\QueueInterface;
 use EzPhp\Contracts\RepositoryInterface;
 use EzPhp\Contracts\Schema\SchemaInterface;
@@ -37,6 +38,7 @@ class ContractsSmokeTest extends TestCase
         $this->assertTrue(interface_exists(ExceptionHandlerInterface::class));
         $this->assertTrue(interface_exists(JobInterface::class));
         $this->assertTrue(interface_exists(MiddlewareInterface::class));
+        $this->assertTrue(interface_exists(ParameterizedMiddlewareInterface::class));
         $this->assertTrue(interface_exists(QueueInterface::class));
         $this->assertTrue(interface_exists(RepositoryInterface::class));
         $this->assertTrue(interface_exists(SchemaInterface::class));

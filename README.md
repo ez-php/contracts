@@ -12,6 +12,7 @@ Shared interfaces and abstract base classes for the ez-php framework.
 | `DatabaseInterface` | Interface | Database queries, transactions, PDO access |
 | `ExceptionHandlerInterface` | Interface | Convert exceptions to HTTP responses |
 | `MiddlewareInterface` | Interface | HTTP middleware pipeline contract |
+| `ParameterizedMiddlewareInterface` | Interface | Middleware taking per-registration string parameters (`'can:update,App\Post'`) |
 | `CommandRegistryInterface` | Interface | Console command registration: `registerCommand()`, `getCommands()` |
 | `TaggedContainerInterface` | Interface | Service tagging: `tag()`, `tagged()` — implemented by the framework `Container` |
 | `TranslatorInterface` | Interface | Translate keys with placeholder replacements |
