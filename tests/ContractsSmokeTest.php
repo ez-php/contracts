@@ -15,6 +15,7 @@ use EzPhp\Contracts\MiddlewareInterface;
 use EzPhp\Contracts\ParameterizedMiddlewareInterface;
 use EzPhp\Contracts\QueueInterface;
 use EzPhp\Contracts\RepositoryInterface;
+use EzPhp\Contracts\RouterInterface;
 use EzPhp\Contracts\Schema\SchemaInterface;
 use EzPhp\Contracts\ServiceProvider;
 use EzPhp\Contracts\TranslatorInterface;
@@ -41,6 +42,7 @@ class ContractsSmokeTest extends TestCase
         $this->assertTrue(interface_exists(ParameterizedMiddlewareInterface::class));
         $this->assertTrue(interface_exists(QueueInterface::class));
         $this->assertTrue(interface_exists(RepositoryInterface::class));
+        $this->assertTrue(interface_exists(RouterInterface::class));
         $this->assertTrue(interface_exists(SchemaInterface::class));
         $this->assertTrue(interface_exists(TranslatorInterface::class));
     }
