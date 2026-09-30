@@ -42,6 +42,29 @@ abstract class ServiceProvider
     }
 
     /**
+     * Register a console command with the container, when it is a command registry.
+     *
+     * `$app` is typed as ContainerInterface, so providers would otherwise need an
+     * `instanceof CommandRegistryInterface` check (or an Application narrowing)
+     * before every registerCommand() call. In a container that is not a registry
+     * (a test double, a non-console setup) this is a no-op, like the check it replaces.
+     *
+     * @param class-string $commandClass
+     *
+     * @return bool Whether the command was registered.
+     */
+    protected function registerCommand(string $commandClass): bool
+    {
+        if (!$this->app instanceof CommandRegistryInterface) {
+            return false;
+        }
+
+        $this->app->registerCommand($commandClass);
+
+        return true;
+    }
+
+    /**
      * Indicate whether this provider is deferred (lazy).
      *
      * When true, the provider's register() and boot() are not called during

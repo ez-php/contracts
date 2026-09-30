@@ -28,10 +28,11 @@ docker compose exec app composer full
 Executes in order:
 1. `sync_guidelines.php --check` — fails if any `CLAUDE.md` has drifted from this file
 2. `check_test_classes.php` — fails on a duplicate test class name (all packages share the `Tests\` namespace, so a collision is a fatal error in the aggregated run, not a test failure)
-3. `phpstan analyse` — static analysis, level 9, config: `phpstan.neon`
-4. `php-cs-fixer fix` — auto-fixes style (`@PSR12` + `@PHP83Migration` + strict rules)
+3. `check_module_deps.php` — fails when a package's code imports an ez-php package its `composer.json` does not declare (module `src`: `require`/`suggest`; tests: `require`/`require-dev` and their dependencies), or requires one it never uses
+4. `phpstan analyse` — static analysis, level 9, config: `phpstan.neon`
+5. `php-cs-fixer fix` — auto-fixes style (`@PSR12` + `@PHP83Migration` + strict rules)
    *(Note: `@PHP85Migration` does not exist yet in php-cs-fixer; `@PHP83Migration` is the highest available and is used intentionally even though the project targets PHP 8.5)*
-5. `phpunit` — all tests with coverage
+6. `phpunit` — all tests with coverage
 
 Individual commands when needed:
 ```
@@ -40,6 +41,7 @@ composer cs                  # CS Fixer only
 composer test                # PHPUnit only
 composer guidelines:check    # CLAUDE.md drift only
 composer test-classes:check  # duplicate test class names only
+composer module-deps:check   # undeclared / unused ez-php package dependencies only
 ```
 
 **PHPStan:** never suppress with `@phpstan-ignore-line` — always fix the root cause.
@@ -198,20 +200,22 @@ vendor/bin/docker-init
 
 This copies `Dockerfile`, `docker-compose.yml`, `.env.example`, `start.sh`, and `docker/` into the module, replacing `{{MODULE_NAME}}` placeholders. Existing files are never overwritten.
 
-Pass `--services` to merge MySQL/Redis/Meilisearch service definitions directly into `docker-compose.yml` and uncomment the matching sections in `.env.example`, instead of adapting them by hand afterward:
+Pass `--services` to merge MySQL/Redis/Meilisearch/Memcached/Mailpit service definitions directly into `docker-compose.yml` and uncomment the matching sections in `.env.example`, instead of adapting them by hand afterward:
 
 ```
 vendor/bin/docker-init --services=mysql
 vendor/bin/docker-init --services=redis
 vendor/bin/docker-init --services=meilisearch
 vendor/bin/docker-init --services=mysql,redis
+vendor/bin/docker-init --services=memcached,mailpit
 ```
 
-Pass `--extensions` to merge PHP extension install blocks (apt packages plus `docker-php-ext-install`/`pecl` lines) directly into `docker/app/Dockerfile`, instead of hand-editing it afterward — supported extensions: `bcmath`, `gmp`, `gd`, `imagick`:
+Pass `--extensions` to merge PHP extension install blocks (apt packages plus `docker-php-ext-install`/`pecl` lines) directly into `docker/app/Dockerfile`, instead of hand-editing it afterward — supported extensions: `bcmath`, `gmp`, `gd`, `imagick`, `memcached`, `apcu` (with `apc.enable_cli=1`):
 
 ```
 vendor/bin/docker-init --extensions=gmp,bcmath
 vendor/bin/docker-init --extensions=gd,imagick
+vendor/bin/docker-init --extensions=memcached,apcu
 ```
 
 When run from a module directory inside this monorepo, any requested extension not already present is also merged into the shared root `docker/app/Dockerfile` — the container `composer full` at the root actually runs against, distinct from the module's own standalone image.
@@ -268,7 +272,7 @@ Shared interfaces and abstract base classes for the ez-php framework. Zero produ
 ```
 src/
 ├── ContainerInterface.php        — bind() + make() + has() + instance(); implemented by Application
-├── ServiceProvider.php           — Abstract base with ContainerInterface $app; modules extend this
+├── ServiceProvider.php           — Abstract base with ContainerInterface $app and a registerCommand() forwarder; modules extend this
 ├── CommandRegistryInterface.php  — registerCommand() + getCommands(); implemented by Application — lets module providers auto-register console commands
 ├── ConfigInterface.php           — get(key, default): mixed; implemented by Config
 ├── DatabaseInterface.php         — query() + transaction() + getPdo(); implemented by Database
@@ -301,7 +305,7 @@ Four methods: `bind()`, `make()`, `has()`, `instance()`. Intentionally minimal �
 
 ### ServiceProvider
 
-Abstract base class. `$app` is typed as `ContainerInterface` so modules can extend it without depending on `ez-php/framework`. Two-phase lifecycle: `register()` (bind services) and `boot()` (use services).
+Abstract base class. `$app` is typed as `ContainerInterface` so modules can extend it without depending on `ez-php/framework`. Two-phase lifecycle: `register()` (bind services) and `boot()` (use services). The protected `registerCommand(class-string): bool` forwards to `CommandRegistryInterface` when `$app` implements it and returns `false` otherwise — the `instanceof` check providers used to repeat, without an `Application` narrowing.
 
 ### DatabaseInterface
 
@@ -341,7 +345,7 @@ Three-case enum (`Satisfied`, `NotSatisfied`, `NotConfigured`) with no methods. 
 
 ## Design Decisions and Constraints
 
-- **No logic** — Only interfaces, one thin base class (`ServiceProvider`), and one plain enum (`SecondFactorResult`, cases only, no methods). No implementation anywhere.
+- **No logic** — Only interfaces, one thin base class (`ServiceProvider`, whose only behaviour is the `registerCommand()` forwarder), and one plain enum (`SecondFactorResult`, cases only, no methods). No implementation anywhere.
 - **`SecondFactorResult` is a pure marker enum** — Deliberately has no `isSatisfied()`-style helper method, unlike a typical result-object pattern, so it stays a data type rather than "implementation" and doesn't strain the "no logic" rule above. Callers compare cases directly (`$result === SecondFactorResult::Satisfied`).
 - **`ContainerInterface::bind()` returns `static`** — Allows fluent chaining in service providers. `instance()` returns `void` since chaining after injecting a concrete instance is uncommon.
 - **`EzPhpException` is concrete** — Modules instantiate it directly or extend it. Making it abstract would break callers that throw it without subclassing.
@@ -353,7 +357,7 @@ Three-case enum (`Satisfied`, `NotSatisfied`, `NotConfigured`) with no methods. 
 ## Testing Approach
 
 - No infrastructure required.
-- Tests verify every contract exists as interfaces/abstract classes and that `ServiceProvider` can be extended.
+- Tests verify every contract exists as interfaces/abstract classes and that `ServiceProvider` can be extended; `ServiceProviderCommandTest` covers `registerCommand()` with and without a command registry.
 - `EzPhpException` tested for instantiation and message passing.
 - `ContainerInterface::bind()` tested to confirm it returns `static` for fluent chaining.
 - `SecondFactorResultTest` verifies the three expected cases exist and are distinct.

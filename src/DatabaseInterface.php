@@ -41,6 +41,13 @@ interface DatabaseInterface
      * Execute a callable inside a database transaction.
      * Rolls back automatically on exception; commits otherwise.
      *
+     * Nesting: when a transaction is already open on the connection (an outer
+     * transaction() call, or one begun directly on the PDO), implementations
+     * must not begin a second one. The reference implementation runs the
+     * callable inside a SAVEPOINT: an exception rolls back only to that
+     * savepoint and is rethrown; success releases it, and the outermost
+     * transaction decides the final commit.
+     *
      * @template T
      *
      * @param callable(): T $fn
