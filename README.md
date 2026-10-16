@@ -2,6 +2,16 @@
 
 Shared interfaces and abstract base classes for the ez-php framework.
 
+## Installation
+
+```bash
+composer require ez-php/contracts
+```
+
+You rarely need to require it directly: `ez-php/framework` and every module that implements
+or consumes these contracts already depend on it. Require it explicitly when writing your own
+package against the contracts without pulling in the framework.
+
 ## Contracts
 
 | Contract | Type | Purpose |

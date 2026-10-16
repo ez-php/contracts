@@ -198,7 +198,7 @@ Run from the new module root (requires `"ez-php/docker": "^2.0"` in `require-dev
 vendor/bin/docker-init
 ```
 
-This copies `Dockerfile`, `docker-compose.yml`, `.env.example`, `start.sh`, and `docker/` into the module, replacing `{{MODULE_NAME}}` placeholders. Existing files are never overwritten.
+This copies `Dockerfile`, `docker-compose.yml`, `.env.example`, `start.sh`, and `docker/` into the module, replacing `{{MODULE_NAME}}` placeholders (`docker/db/`, the MySQL init script, only with `--services=mysql`). Existing files are never overwritten.
 
 Pass `--services` to merge MySQL/Redis/Meilisearch/Memcached/Mailpit service definitions directly into `docker-compose.yml` and uncomment the matching sections in `.env.example`, instead of adapting them by hand afterward:
 
@@ -243,7 +243,8 @@ After scaffolding:
 | `ez-php/feature-flags` | — | 6385 (`REDIS_HOST_PORT`) | — |
 | `ez-php/scheduler` | — | 6386 (`REDIS_HOST_PORT`) | — |
 | `ez-php/session` | — | 6387 (`REDIS_HOST_PORT`) | — |
-| **next free** | **3312** | **6388** | **7702** |
+| `ez-php/metrics` | — | 6388 (`REDIS_HOST_PORT`) | — |
+| **next free** | **3312** | **6389** | **7702** |
 
 Only set a port for services the module actually uses. Modules without external services need no port config.
 
@@ -275,7 +276,7 @@ src/
 ├── ServiceProvider.php           — Abstract base with ContainerInterface $app and a registerCommand() forwarder; modules extend this
 ├── CommandRegistryInterface.php  — registerCommand() + getCommands(); implemented by Application — lets module providers auto-register console commands
 ├── ConfigInterface.php           — get(key, default): mixed; implemented by Config
-├── DatabaseInterface.php         — query() + transaction() + getPdo(); implemented by Database
+├── DatabaseInterface.php         — query() + execute() + transaction() + getPdo(); implemented by Database
 ├── ExceptionHandlerInterface.php — report(Throwable, RequestInterface): void + render(…): ResponseInterface; implemented by DefaultExceptionHandler
 ├── EzPhpException.php            — Base exception extending RuntimeException
 ├── JobInterface.php              — handle() + fail() + getters/incrementAttempts(); implemented by ez-php/queue Job
@@ -309,7 +310,7 @@ Abstract base class. `$app` is typed as `ContainerInterface` so modules can exte
 
 ### DatabaseInterface
 
-Covers the three operations the ORM needs: `query()` for SELECT, `transaction()` for DML, and `getPdo()` for raw access in schema operations.
+Four methods: `query()` for SELECT (returns the rows), `execute()` for DML — INSERT/UPDATE/DELETE, returning the affected-row count — `transaction()` to run a callable atomically (commit on return, rollback and rethrow on exception; nested calls use savepoints in the framework `Database`), and `getPdo()` for raw access in schema operations.
 
 ### ExceptionHandlerInterface
 
