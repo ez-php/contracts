@@ -17,7 +17,7 @@ package against the contracts without pulling in the framework.
 | Contract | Type | Purpose |
 |---|---|---|
 | `ContainerInterface` | Interface | Dependency injection: `bind()`, `make()`, `has()`, `instance()` |
-| `ServiceProvider` | Abstract class | Two-phase lifecycle: `register()` and `boot()` |
+| `ServiceProvider` | Abstract class | Two-phase lifecycle: `register()` and `boot()`; `deferred()`/`provides()` make it lazy — the kernel then skips it at bootstrap and runs `register()` + `boot()` on the first resolution (direct or autowired) of a `provides()` class |
 | `ConfigInterface` | Interface | Configuration access via dot-notation keys |
 | `DatabaseInterface` | Interface | Database queries, transactions, PDO access |
 | `ExceptionHandlerInterface` | Interface | Convert exceptions to HTTP responses |
@@ -31,4 +31,5 @@ package against the contracts without pulling in the framework.
 | `RepositoryInterface` | Interface | Generic repository: `find()`, `save()`, `delete()` |
 | `Schema\SchemaInterface` | Interface | Schema builder contract: `create()`, `table()`, `drop()`, `dropIfExists()`, `hasTable()`, `hasColumn()`, `rename()` |
 | `EzPhpException` | Class | Base exception for framework and modules |
+| `GateInterface` | Interface | Authorization check `allows(ability, subject)` — implemented by `ez-php/authorization`'s `Gate`, used by the framework's `Controller::authorize()` |
 | `SecondFactorResult` | Enum | Shared `Satisfied`/`NotSatisfied`/`NotConfigured` outcome for second-factor verifier modules (e.g. `ez-php/two-factor`, `ez-php/webauthn`) |

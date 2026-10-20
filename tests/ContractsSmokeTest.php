@@ -10,6 +10,7 @@ use EzPhp\Contracts\ContainerInterface;
 use EzPhp\Contracts\DatabaseInterface;
 use EzPhp\Contracts\ExceptionHandlerInterface;
 use EzPhp\Contracts\EzPhpException;
+use EzPhp\Contracts\GateInterface;
 use EzPhp\Contracts\JobInterface;
 use EzPhp\Contracts\MiddlewareInterface;
 use EzPhp\Contracts\ParameterizedMiddlewareInterface;
@@ -27,7 +28,7 @@ use PHPUnit\Framework\Attributes\Test;
  */
 #[CoversClass(EzPhpException::class)]
 #[CoversClass(ServiceProvider::class)]
-class ContractsSmokeTest extends TestCase
+final class ContractsSmokeTest extends TestCase
 {
     #[Test]
     public function contractInterfacesExist(): void
@@ -37,6 +38,7 @@ class ContractsSmokeTest extends TestCase
         $this->assertTrue(interface_exists(ConfigInterface::class));
         $this->assertTrue(interface_exists(DatabaseInterface::class));
         $this->assertTrue(interface_exists(ExceptionHandlerInterface::class));
+        $this->assertTrue(interface_exists(GateInterface::class));
         $this->assertTrue(interface_exists(JobInterface::class));
         $this->assertTrue(interface_exists(MiddlewareInterface::class));
         $this->assertTrue(interface_exists(ParameterizedMiddlewareInterface::class));

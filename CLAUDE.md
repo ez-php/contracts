@@ -279,6 +279,7 @@ src/
 ├── DatabaseInterface.php         — query() + execute() + transaction() + getPdo(); implemented by Database
 ├── ExceptionHandlerInterface.php — report(Throwable, RequestInterface): void + render(…): ResponseInterface; implemented by DefaultExceptionHandler
 ├── EzPhpException.php            — Base exception extending RuntimeException
+├── GateInterface.php             — allows(ability, subject): bool; implemented by ez-php/authorization Gate, used by the framework Controller::authorize()
 ├── JobInterface.php              — handle() + fail() + getters/incrementAttempts(); implemented by ez-php/queue Job
 ├── MiddlewareInterface.php       — handle(RequestInterface, callable): ResponseInterface; implemented by all middleware
 ├── ParameterizedMiddlewareInterface.php — extends MiddlewareInterface; handle(..., string ...$parameters) for `'name:arg1,arg2'` registrations
