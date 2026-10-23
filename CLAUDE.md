@@ -295,6 +295,8 @@ src/
 
 tests/
 ├── TestCase.php                  — Base PHPUnit test case
+├── ServiceProviderCommandTest.php  — registerCommand() forwards to a CommandRegistryInterface container, no-op otherwise
+├── SecondFactorResultTest.php  — the three cases exist and are distinct
 └── ContractsSmokeTest.php        — Verifies all contracts exist and are usable
 ```
 
