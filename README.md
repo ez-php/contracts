@@ -29,6 +29,7 @@ package against the contracts without pulling in the framework.
 | `JobInterface` | Interface | Queue job contract: `handle()`, `fail()`, attempt/retry accessors |
 | `QueueInterface` | Interface | Queue driver contract: `push()`, `pop()`, `size()`, `failed()` |
 | `RepositoryInterface` | Interface | Generic repository: `find()`, `save()`, `delete()` |
+| `RouterInterface` | Interface | Route registration: `get()`, `post()`, `put()`, `patch()`, `delete()`, `toCache()` — implemented by the framework `Router` (bound by `RouterServiceProvider`), so route-registering modules need not depend on `ez-php/framework` |
 | `Schema\SchemaInterface` | Interface | Schema builder contract: `create()`, `table()`, `drop()`, `dropIfExists()`, `hasTable()`, `hasColumn()`, `rename()` |
 | `EzPhpException` | Class | Base exception for framework and modules |
 | `GateInterface` | Interface | Authorization check `allows(ability, subject)` — implemented by `ez-php/authorization`'s `Gate`, used by the framework's `Controller::authorize()` |
